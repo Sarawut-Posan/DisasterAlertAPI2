@@ -13,7 +13,9 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Region>().HasKey(r => r.Id);
+        modelBuilder.Entity<Region>()
+            .HasIndex(r => r.RegionID)
+            .IsUnique();
         modelBuilder.Entity<AlertSetting>().HasKey(a => new { a.RegionId, a.DisasterType });
         modelBuilder.Entity<Alert>().HasKey(a => a.Id);
     }

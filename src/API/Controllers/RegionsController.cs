@@ -15,22 +15,22 @@ namespace API.Controllers
             _regionRepository = regionRepository;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddRegion([FromBody] Region region)
+        [HttpGet("{regionID}")]
+        public async Task<ActionResult<Region>> GetRegion(string regionID)
         {
-            await _regionRepository.AddAsync(region);
-            return CreatedAtAction(nameof(GetRegion), new { id = region.Id }, region);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Region>> GetRegion(string id)
-        {
-            var region = await _regionRepository.GetByIdAsync(id);
+            var region = await _regionRepository.GetByRegionIDAsync(regionID);
             if (region == null)
             {
                 return NotFound();
             }
             return region;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Region>> CreateRegion(Region region)
+        {
+            await _regionRepository.AddAsync(region);
+            return CreatedAtAction(nameof(GetRegion), new { regionID = region.RegionID }, region);
         }
 
         [HttpGet]

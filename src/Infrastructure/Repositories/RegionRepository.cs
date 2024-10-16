@@ -14,9 +14,9 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Region?> GetByIdAsync(string id)
+        public async Task<Region> GetByRegionIDAsync(string regionID)
         {
-            return await _context.Regions.FindAsync(id);
+            return await _context.Regions.FirstOrDefaultAsync(r => r.RegionID == regionID);
         }
 
         public async Task<IEnumerable<Region>> GetAllAsync()
