@@ -16,7 +16,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Region>()
             .HasIndex(r => r.RegionID)
             .IsUnique();
-        modelBuilder.Entity<AlertSetting>().HasKey(a => new { a.RegionId, a.DisasterType });
+        modelBuilder.Entity<AlertSetting>()
+            .HasKey(a => new { a.RegionId, a.DisasterType });
         modelBuilder.Entity<Alert>().HasKey(a => a.Id);
     }
 }

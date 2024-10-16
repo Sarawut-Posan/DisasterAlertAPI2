@@ -13,22 +13,20 @@ namespace Infrastructure.Repositories
         {
             _context = context;
         }
+        public async Task<IEnumerable<AlertSetting>> GetAllAsync()
+        {
+            return await _context.AlertSettings.ToListAsync();
+        }
 
         public async Task<AlertSetting?> GetByRegionAndDisasterTypeAsync(string regionId, string disasterType)
         {
             return await _context.AlertSettings.FindAsync(regionId, disasterType);
         }
 
-        public Task<IEnumerable<AlertSetting>> GetAllForRegionAsync(string regionId)
+        public async Task<IEnumerable<AlertSetting>> GetAllForRegionAsync(string regionId)
         {
-            throw new NotImplementedException();
+            return await _context.AlertSettings.Where(a => a.RegionId == regionId).ToListAsync();
         }
-
-        public async Task<IEnumerable<AlertSetting>> GetAllForRegionAsync(int regionId)
-        {
-            return await _context.AlertSettings.Where(a => a.RegionId == regionId).ToListAsync<AlertSetting>();
-        }
-
         public async Task AddAsync(AlertSetting alertSetting)
         {
             await _context.AlertSettings.AddAsync(alertSetting);
