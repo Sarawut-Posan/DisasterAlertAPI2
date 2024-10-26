@@ -1,34 +1,64 @@
 using Application.Interfaces;
+using Application.Services;
+using Domain.DTO;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+namespace API.Controllers;
+[ApiController]
+[Route("api/[controller]")]
+public class AlertsController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AlertsController : ControllerBase
+    private readonly IAlertService _alertService;
+    private readonly ILogger<AlertsController> _logger;
+    private readonly IAlertRepository _alertRepository;
+
+    public AlertsController(
+        IAlertService alertService,
+        ILogger<AlertsController> logger
+         )
     {
-        private readonly IAlertService _alertService;
-        private readonly IAlertRepository _alertRepository;
+        _alertService = alertService;
+        _logger = logger;
+    }
 
-        public AlertsController(IAlertService alertService, IAlertRepository alertRepository)
+    [HttpPost("send")]
+    public async Task<IActionResult> SendAlert([FromBody] CreateAlertRequest request)
+    {
+        try
         {
-            _alertService = alertService;
-            _alertRepository = alertRepository;
-        }
+            var alert = new Alert
+            {
+                RegionId = request.RegionId,
+                DisasterType = request.DisasterType,
+                RiskLevel = request.RiskLevel,
+                AlertMessage = request.Message,
+                Timestamp = DateTime.UtcNow
+            };
 
-        [HttpPost("send")]
-        public async Task<IActionResult> SendAlert([FromBody] Alert alert)
-        {
-            await _alertService.SendAlertAsync(alert);
-            return Ok();
-        }
+            // ไม่จำเป็นต้องมี RecipientPhoneNumbers แล้ว เพราะใช้ Line Notify
+            var result = await _alertService.SendAlertAsync(alert);
 
-        [HttpGet("{regionId}")]
-        public async Task<ActionResult<IEnumerable<Alert>>> GetRecentAlerts(string regionId, [FromQuery] int count = 10)
-        {
-            var alerts = await _alertRepository.GetRecentForRegionAsync(regionId, count);
-            return Ok(alerts);
+            return Ok(new
+            {
+                message = "Alert sent successfully via Line Notify",
+                alertId = result.Id,
+                timestamp = result.Timestamp
+            });
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to send alert");
+            throw;
+        }
+    }
+
+    [HttpGet("{regionId}")]
+    public async Task<ActionResult<IEnumerable<Alert>>> GetRecentAlerts(
+        string regionId,
+        [FromQuery] int count = 10)
+    {
+        var alerts = await _alertRepository.GetRecentForRegionAsync(regionId, count);
+        return Ok(alerts);
     }
 }

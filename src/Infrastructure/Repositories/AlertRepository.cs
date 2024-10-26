@@ -24,10 +24,16 @@ namespace Infrastructure.Repositories
             return await _context.Alerts.ToListAsync();
         }
 
-        public Task<IEnumerable<Alert>> GetRecentForRegionAsync(string regionId, int count)
+        public async Task<IEnumerable<Alert>> GetRecentForRegionAsync(string regionId, int count)
         {
-            throw new NotImplementedException();
+            return await _context.Alerts
+                .Where(a => a.RegionId == regionId)
+                .OrderByDescending(a => a.Timestamp)
+                .Take(count)
+                .ToListAsync();
         }
+        
+        
 
         public async Task AddAsync(Alert alert)
         {
@@ -35,20 +41,20 @@ namespace Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Alert alert)
-        {
-            _context.Alerts.Update(alert);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            var alert = await _context.Alerts.FindAsync(id);
-            if (alert != null)
-            {
-                _context.Alerts.Remove(alert);
-                await _context.SaveChangesAsync();
-            }
-        }
+        // public async Task UpdateAsync(Alert alert)
+        // {
+        //     _context.Alerts.Update(alert);
+        //     await _context.SaveChangesAsync();
+        // }
+        //
+        // public async Task DeleteAsync(int id)
+        // {
+        //     var alert = await _context.Alerts.FindAsync(id);
+        //     if (alert != null)
+        //     {
+        //         _context.Alerts.Remove(alert);
+        //         await _context.SaveChangesAsync();
+        //     }
+        // }
     }
 }

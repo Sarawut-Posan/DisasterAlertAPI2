@@ -4,5 +4,5 @@ namespace Application.Interfaces;
 
 public interface IAlertService
 {
-    Task SendAlertAsync(Alert alert);
+    Task<Alert> SendAlertAsync(Alert alert);
 }

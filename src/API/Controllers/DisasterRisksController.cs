@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Domain.DTO;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,17 +19,25 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DisasterRisk>>> GetDisasterRisks()
+        public async Task<ActionResult<IEnumerable<DisasterRiskResponse>>> GetDisasterRisks()
         {
             var regions = await _regionRepository.GetAllAsync();
-            var risks = new List<DisasterRisk>();
+            var risks = new List<DisasterRiskResponse>();
 
             foreach (var region in regions)
             {
                 foreach (var disasterType in region.DisasterTypes)
                 {
                     var risk = await _riskCalculationService.CalculateRiskAsync(region, disasterType);
-                    risks.Add(risk);
+                    var response = new DisasterRiskResponse
+                    {
+                        RegionId = risk.RegionId,
+                        DisasterType = risk.DisasterType,
+                        RiskScore = risk.RiskScore,
+                        RiskLevel = risk.RiskLevel,
+                        AlertTriggered = risk.AlertTriggered
+                    };
+                    risks.Add(response);
                 }
             }
 

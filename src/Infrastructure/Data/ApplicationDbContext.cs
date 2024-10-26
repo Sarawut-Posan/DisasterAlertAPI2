@@ -18,6 +18,11 @@ public class ApplicationDbContext : DbContext
             .IsUnique();
         modelBuilder.Entity<AlertSetting>()
             .HasKey(a => new { a.RegionId, a.DisasterType });
-        modelBuilder.Entity<Alert>().HasKey(a => a.Id);
+        modelBuilder.Entity<Alert>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Timestamp).HasDefaultValueSql("NOW()");
+        });
     }
 }

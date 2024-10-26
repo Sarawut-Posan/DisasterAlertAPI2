@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Domain.DTO;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,8 +28,16 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Region>> CreateRegion(Region region)
+        public async Task<ActionResult<Region>> CreateRegion([FromBody] CreateRegionDto request)
         {
+            var region = new Region
+            {
+                RegionID = request.RegionID,
+                Latitude = request.Latitude,
+                Longitude = request.Longitude,
+                DisasterTypes = request.DisasterTypes
+            };
+    
             await _regionRepository.AddAsync(region);
             return CreatedAtAction(nameof(GetRegion), new { regionID = region.RegionID }, region);
         }
