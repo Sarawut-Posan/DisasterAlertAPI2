@@ -1,5 +1,4 @@
 using Application.Interfaces;
-using Domain.DTO;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,37 +10,49 @@ namespace API.Controllers
     {
         private readonly IRegionRepository _regionRepository;
         private readonly IRiskCalculationService _riskCalculationService;
+        private readonly ILogger<DisasterRisksController> _logger;
 
-        public DisasterRisksController(IRegionRepository regionRepository, IRiskCalculationService riskCalculationService)
+        public DisasterRisksController(
+            IRegionRepository regionRepository,
+            IRiskCalculationService riskCalculationService,
+            ILogger<DisasterRisksController> logger)
         {
             _regionRepository = regionRepository;
             _riskCalculationService = riskCalculationService;
+            _logger = logger;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DisasterRiskResponse>>> GetDisasterRisks()
+        public async Task<ActionResult<IEnumerable<DisasterRisk>>> GetDisasterRisks()
         {
-            var regions = await _regionRepository.GetAllAsync();
-            var risks = new List<DisasterRiskResponse>();
-
-            foreach (var region in regions)
+            try
             {
-                foreach (var disasterType in region.DisasterTypes)
-                {
-                    var risk = await _riskCalculationService.CalculateRiskAsync(region, disasterType);
-                    var response = new DisasterRiskResponse
-                    {
-                        RegionId = risk.RegionId,
-                        DisasterType = risk.DisasterType,
-                        RiskScore = risk.RiskScore,
-                        RiskLevel = risk.RiskLevel,
-                        AlertTriggered = risk.AlertTriggered
-                    };
-                    risks.Add(response);
-                }
-            }
+                var regions = await _regionRepository.GetAllAsync();
+                var risks = new List<DisasterRisk>();
 
-            return Ok(risks);
+                foreach (var region in regions)
+                {
+                    foreach (var disasterType in region.DisasterTypes)
+                    {
+                        var risk = await _riskCalculationService.CalculateRiskAsync(region, disasterType);
+                        risks.Add(new DisasterRisk
+                        {
+                            RegionId = region.RegionID,
+                            DisasterType = disasterType,
+                            RiskScore = risk.RiskScore,
+                            RiskLevel = risk.RiskLevel,
+                            AlertTriggered = risk.AlertTriggered
+                        });
+                    }
+                }
+
+                return Ok(risks);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting disaster risks");
+                throw;
+            }
         }
     }
 }

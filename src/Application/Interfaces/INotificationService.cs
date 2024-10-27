@@ -2,5 +2,6 @@ namespace Application.Interfaces;
 
 public interface INotificationService
 {
-    Task SendNotificationAsync(string message);
+    Task<bool> SendNotificationAsync(string message); 
+    
 }

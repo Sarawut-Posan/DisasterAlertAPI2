@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
-public class AlertNotificationService
+public class AlertNotificationService 
 {
     private readonly IMessagingService _messagingService;
     private readonly ILogger<AlertNotificationService> _logger;
@@ -17,6 +17,8 @@ public class AlertNotificationService
         _logger = logger;
     }
 
+    
+    // twilio service [cannot verify] 
     public async Task SendDisasterAlertAsync(Alert alert, IEnumerable<string> recipientPhoneNumbers)
     {
         var message = FormatAlertMessage(alert);
@@ -47,4 +49,6 @@ public class AlertNotificationService
                $"Message: {alert.AlertMessage}\n" +
                $"Time: {alert.Timestamp:g}";
     }
+    
+    
 }

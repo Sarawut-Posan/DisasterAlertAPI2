@@ -2,8 +2,7 @@ using Application.Interfaces;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Services
-{
+namespace Application.Services;
     public class AlertService : IAlertService
     {
         private readonly IAlertRepository _alertRepository;
@@ -19,35 +18,67 @@ namespace Application.Services
             _notificationService = notificationService;
             _logger = logger;
         }
-        
+
         public async Task<Alert> SendAlertAsync(Alert alert)
         {
             try
             {
-                await _alertRepository.AddAsync(alert);
+                // บันทึกลง database ก่อน
+                var savedAlert = await _alertRepository.AddAsync(alert);
+            
+                // ส่ง notification
+                var notificationSent = await _notificationService.SendNotificationAsync(alert.AlertMessage);
+            
+                if (!notificationSent)
+                {
+                    _logger.LogWarning(
+                        "Notification failed for AlertId: {AlertId}, Region: {RegionId}", 
+                        savedAlert.Id, 
+                        savedAlert.RegionId);
+                }
+                else
+                {
+                    _logger.LogInformation(
+                        "Alert sent and logged. AlertId: {AlertId}, Region: {RegionId}, Type: {DisasterType}", 
+                        savedAlert.Id, 
+                        savedAlert.RegionId, 
+                        savedAlert.DisasterType);
+                }
 
-                var message = FormatAlertMessage(alert);
-                await _notificationService.SendNotificationAsync(message);
-
-                _logger.LogInformation($"Alert sent for region {alert.RegionId}");
-                return alert;
+                return savedAlert;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error sending alert for region {alert.RegionId}");
+                _logger.LogError(ex, 
+                    "Failed to send/log alert for Region: {RegionId}, Type: {DisasterType}", 
+                    alert.RegionId, 
+                    alert.DisasterType);
                 throw;
             }
         }
-
-        private string FormatAlertMessage(Alert alert)
+        public string CreateAlertMessage(DisasterRisk risk)
         {
-            return $"\n🚨 DISASTER ALERT 🚨" +
-                   $"\nType: {alert.DisasterType}" +
-                   $"\nRisk Level: {alert.RiskLevel}" +
-                   $"\nRegion: {alert.RegionId}" +
-                   $"\nMessage: {alert.AlertMessage}" +
-                   $"\nTime: {alert.Timestamp:g}";
+            return $"🚨 High-risk alert 🚨" +
+                   $"\nRegion: {risk.RegionId}" +
+                   $"\nDisaster Type: {risk.DisasterType}" +
+                   $"\nRisk Level: {risk.RiskLevel}" +
+                   $"\nRisk Score: {risk.RiskScore:F1}" +
+                   $"\nTime: {DateTime.UtcNow:g}" +
+                   $"\n\n⚠️ Please follow local authority instructions and stay safe!";
         }
+    }
+
+
+
+        // private string FormatAlertMessage(Alert alert)
+        // {
+        //     return $"\n🚨 DISASTER ALERT 🚨" +
+        //            $"\nType: {alert.DisasterType}" +
+        //            $"\nRisk Level: {alert.RiskLevel}" +
+        //            $"\nRegion: {alert.RegionId}" +
+        //            $"\nMessage: {alert.AlertMessage}" +
+        //            $"\nTime: {alert.Timestamp:g}";
+        // }
         // public async Task<Alert> SendAlertAsync(Alert alert)
         // {
         //     try
@@ -62,5 +93,3 @@ namespace Application.Services
         //         throw;
         //     }
         // }
-    }
-}

@@ -10,6 +10,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Region> Regions { get; set; }
     public DbSet<AlertSetting> AlertSettings { get; set; }
     public DbSet<Alert> Alerts { get; set; }
+    public DbSet<DisasterRisk> DisasterRisks { get; set; }
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,5 +26,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.Timestamp).HasDefaultValueSql("NOW()");
         });
+        modelBuilder.Entity<DisasterRisk>()
+            .HasKey(dr => new { dr.RegionId, dr.DisasterType });
     }
 }

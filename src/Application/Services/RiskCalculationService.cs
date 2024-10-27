@@ -22,7 +22,7 @@ namespace Application.Services
 
         public async Task<DisasterRisk> CalculateRiskAsync(Region region, string disasterType)
         {
-            var cacheKey = $"risk_{region.Id}_{disasterType}";
+            var cacheKey = $"risk_{region.RegionID}_{disasterType}";
             var cachedRisk = await _cacheService.GetAsync<DisasterRisk>(cacheKey);
             if (cachedRisk != null)
             {
@@ -39,7 +39,7 @@ namespace Application.Services
 
                 var disasterRisk = new DisasterRisk
                 {
-                    RegionId = region.Id,
+                    RegionId = region.RegionID,
                     DisasterType = disasterType,
                     RiskScore = riskScore,
                     RiskLevel = riskLevel.ToString(),
@@ -52,10 +52,10 @@ namespace Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error calculating risk for region {region.Id}");
+                _logger.LogError(ex, $"Error calculating risk for region {region.RegionID}");
                 return new DisasterRisk
                 {
-                    RegionId = region.Id,
+                    RegionId = region.RegionID,
                     DisasterType = disasterType,
                     RiskLevel = RiskLevel.Unknown.ToString(),
                     AlertTriggered = false
@@ -82,4 +82,3 @@ namespace Application.Services
         }
     }
 }
-

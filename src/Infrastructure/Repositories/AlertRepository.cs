@@ -35,10 +35,11 @@ namespace Infrastructure.Repositories
         
         
 
-        public async Task AddAsync(Alert alert)
+        public async Task<Alert> AddAsync(Alert alert)
         {
             await _context.Alerts.AddAsync(alert);
             await _context.SaveChangesAsync();
+            return alert;  
         }
 
         // public async Task UpdateAsync(Alert alert)

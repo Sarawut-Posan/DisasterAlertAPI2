@@ -4,6 +4,6 @@ namespace Application.Interfaces;
 
 public interface IAlertRepository
 {
+    Task<Alert> AddAsync(Alert alert);  
     Task<IEnumerable<Alert>> GetRecentForRegionAsync(string regionId, int count);
-    Task AddAsync(Alert alert);
 }

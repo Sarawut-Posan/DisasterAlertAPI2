@@ -4,7 +4,8 @@ using Application.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Application.Services;
+
+namespace Infrastructure.Services;
 
 public class LineNotifyService : INotificationService
 {
@@ -25,7 +26,7 @@ public class LineNotifyService : INotificationService
         _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
     }
 
-    public async Task SendNotificationAsync(string message)
+    public async Task<bool> SendNotificationAsync(string message)
     {
         try
         {
@@ -38,6 +39,7 @@ public class LineNotifyService : INotificationService
             response.EnsureSuccessStatusCode();
 
             _logger.LogInformation("Line notification sent successfully");
+            return true;
         }
         catch (Exception ex)
         {

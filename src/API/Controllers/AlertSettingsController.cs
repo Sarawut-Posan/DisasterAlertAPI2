@@ -15,12 +15,14 @@ namespace API.Controllers
         {
             _alertSettingRepository = alertSettingRepository;
         }
+        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AlertSetting>>> GetAllAlertSettings()
         {
             var alertSettings = await _alertSettingRepository.GetAllAsync();
             return Ok(alertSettings);
         }
+        
         [HttpGet("{regionId}")]
         public async Task<ActionResult<IEnumerable<AlertSetting>>> GetAlertSettingsForRegion(string regionId)
         {
