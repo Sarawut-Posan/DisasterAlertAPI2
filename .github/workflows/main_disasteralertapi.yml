@@ -78,7 +78,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'disaster-alert-api'
+          app-name: 'DisasterAlertAPI'
           slot-name: 'Production'
           package: .
           
